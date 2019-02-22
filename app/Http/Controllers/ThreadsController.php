@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Auth;
 use App\Thread;
 use Illuminate\Http\Request;
 
@@ -37,7 +38,13 @@ class ThreadsController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $thread = Thread::create([
+            'user_id' => Auth::id(),
+            'title' => $request->title,
+            'body' => $request->body
+        ]);
+
+        return redirect($thread->path());
     }
 
     /**
