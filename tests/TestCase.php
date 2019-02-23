@@ -10,6 +10,12 @@ abstract class TestCase extends BaseTestCase
 {
     use CreatesApplication;
 
+    protected function setUp()
+    {
+        parent::setUp();
+        $this->disableExceptionHandling();
+    }
+
     protected function signIn($user = null) 
     {
         $user = $user ?: create('App\User');
@@ -19,22 +25,21 @@ abstract class TestCase extends BaseTestCase
         return $this;
     }
 
-    // Framework-supplied test case methods snipped for brevity
-
-    // Use this version if you're on PHP 7
     protected function disableExceptionHandling()
     {
+        $this->oldExceptionHandler = $this->app->make(ExceptionHandler::class);
         $this->app->instance(ExceptionHandler::class, new class extends Handler {
             public function __construct() {}
-            
-            public function report(Exception $e)
-            {
-                // no-op
-            }
-            
-            public function render($request, Exception $e) {
+            public function report(\Exception $e) {}
+            public function render($request, \Exception $e) {
                 throw $e;
             }
         });
+    }
+
+    protected function withExceptionHandling()
+    {
+        $this->app->instance(ExceptionHandler::class, $this->oldExceptionHandler);
+        return $this;
     }
 }
